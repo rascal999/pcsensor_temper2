@@ -22,21 +22,18 @@ def main():
                                                  "and push to Drive spreadsheet")
     parser.add_argument("--device-id", required=True,
                         help="Device input to read (e.g. input1)")
-    parser.add_argument("--interval", default=5, type=int,
+    parser.add_argument("--spreadsheet-id", required=True,
+                        help="Spreadsheet ID to push data to")
+    parser.add_argument("--interval", default=900, type=int,
                         help="How often to push data to spreadsheet (seconds)")
 
     parsed = parser.parse_args()
 
-    # We can't scan a user on GitHub and the members of this user
-    #if parsed.user and parsed.members:
-    #    parser.erorr("Incompatible options --user <USER> and --members.")
+    read_input(parsed)
 
-    read_input(parsed.device_id,parsed.interval)
+def read_input(parsed):
+    dev = InputDevice('/dev/input/' + parsed.device_id)
 
-def read_input(device_id,interval):
-    dev = InputDevice('/dev/input/' + device_id)
-
-    # Provided as an example taken from my own keyboard attached to a Centos 6 box:
     scancodes = {
             # Scancode: ASCIICode
             0: '', 1: u'ESC', 2: u'1', 3: u'2', 4: u'3', 5: u'4', 6: u'5', 7: u'6', 8: u'7', 9: u'8',
@@ -61,39 +58,44 @@ def read_input(device_id,interval):
                 if key_lookup == '\n':
                     raw_values = ''.join(temp)
                     # Newline hit, send to process def
-                    count = process(raw_values,interval,count)
+                    count = process(raw_values,parsed,count)
                     # Reset list
                     temp = []
                 else:
                     # If not newline, then append to list
                     temp.append(key_lookup)
 
-def process(raw_values,interval,count):
+# This def will selectively submit to the spreadsheet
+# depending on count, which roughly equates to seconds.
+# Most of the data is discarded, but could be averaged in
+# future.
+def process(raw_values,parsed,count):
     # Sometimes we get garbage, so search string for [C]
     if "[C]" in raw_values:
         temperature = str(raw_values.split()[1])
         temperature_float = temperature.replace("[C]","") # Float only
         count = count + 1 # Device triggers every second
-        if count > interval: # Device hit greater than count?
-            now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            push_to_spreadsheet(temperature_float,now) # Push data to spreadsheet
+        if count > parsed.interval: # Device hit greater than count?
+            now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") # Current date
+            push_to_spreadsheet(parsed,temperature_float,now) # Push data to spreadsheet
             count = 0
     return count
 
-def push_to_spreadsheet(temperature,now):
+# Push data to spreadsheet
+def push_to_spreadsheet(parsed,temperature,now):
     #print(temperature)
 
-    # If modifying these scopes, delete the file token.pickle.
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
     # The ID and range of a sample spreadsheet.
-    SAMPLE_SPREADSHEET_ID = '1TipIc59G52RlfTNR6NqBsMeh_i48_-ITg8fm0bW9qAI'  # TODO: Update placeholder value.
+    SAMPLE_SPREADSHEET_ID = parsed.spreadsheet_id # '1TipIc59G52RlfTNR6NqBsMeh_i48_-ITg8fm0bW9qAI'
     SAMPLE_RANGE_NAME = 'Sheet1!A1:B'
 
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
     """
     creds = None
+
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
@@ -107,6 +109,7 @@ def push_to_spreadsheet(temperature,now):
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 'credentials.json', SCOPES)
+            # Listens on TCP port on loopback interface
             creds = flow.run_local_server()
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
@@ -119,11 +122,10 @@ def push_to_spreadsheet(temperature,now):
         "majorDimension": "ROWS",
         "values": list
     }
-    spreadsheetId = '1TipIc59G52RlfTNR6NqBsMeh_i48_-ITg8fm0bW9qAI'
 
     range = "Sheet1!A1:A";
     service.spreadsheets().values().append(
-        spreadsheetId=spreadsheetId,
+        spreadsheetId=parsed.spreadsheet_id,
         range=range,
         body=resource,
         valueInputOption="USER_ENTERED"
