@@ -1,0 +1,6 @@
+# Google auth
+credentials.json
+token.pickle
+
+# Virtualenv
+venv
