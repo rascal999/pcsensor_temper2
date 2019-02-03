@@ -10,7 +10,7 @@ Script which pushes temperature sensor data to Google spreadsheet
 
 ``./temp_gather.py --device-id event12 --spreadsheet-id 1TipIc59G52RlfTNR6NqBsMeh_i48_-ITg8fm0bW9qAI --interval 900``
 
-You will need the credentials.json file which you can generate from https://developers.google.com/sheets/api/quickstart/python
+You will need the ``credentials.json`` file which you can generate from https://developers.google.com/sheets/api/quickstart/python
 
 ### Installing
 
