@@ -4,47 +4,48 @@ Script which pushes temperature sensor data to Google spreadsheet
 
 ## Getting Started
 
-Connect your sensor and find out what input it is (``xinput``)
+1. Connect your sensor and find out what input it is (``xinput``)
 
-Run spreadsheet push every 15 minutes with:
+2. Run spreadsheet push every 15 minutes with:
 
 ``./temp_gather.py --device-id event12 --spreadsheet-id 1TipIc59G52RlfTNR6NqBsMeh_i48_-ITg8fm0bW9qAI --interval 900``
 
-### Prerequisites
-
-What things you need to install the software and how to install them
-
-```
-Give examples
-```
+You will need the credentials.json file which you can generate from https://developers.google.com/sheets/api/quickstart/python
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
 ```
-Give the example
-```
-
-And repeat
-
-```
-until finished
+git clone https://github.com/rascal999/pcsensor_temper2
+cd pcsensor_temper2
+pip install -r requirements.txt
+./temp_gather.py --help
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+You should see something like:
+
+```
+./temp_gather.py --help
+usage: temp_gather.py [-h] --device-id DEVICE_ID --spreadsheet-id
+                      SPREADSHEET_ID [--interval INTERVAL]
+
+Take temperature from HID and push to Drive spreadsheet
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --device-id DEVICE_ID
+                        Device input to read (e.g. input1)
+  --spreadsheet-id SPREADSHEET_ID
+                        Spreadsheet ID to push data to
+  --interval INTERVAL   How often to push data to spreadsheet (seconds)
+```
 
 ## Built With
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+* [Python3](https://www.python.org/) - Python Programming Language.
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+Subtmit a PR for consideration.
 
 ## Authors
 
