@@ -123,13 +123,16 @@ def push_to_spreadsheet(parsed,temperature,now):
         "values": list
     }
 
-    range = "Sheet1!A1:A";
-    service.spreadsheets().values().append(
-        spreadsheetId=parsed.spreadsheet_id,
-        range=range,
-        body=resource,
-        valueInputOption="USER_ENTERED"
-    ).execute()
+    try:
+       range = "Sheet1!A1:A";
+       service.spreadsheets().values().append(
+           spreadsheetId=parsed.spreadsheet_id,
+           range=range,
+           body=resource,
+           valueInputOption="USER_ENTERED"
+       ).execute()
+    except:
+       pass
 
 if __name__ == "__main__":
     main()
